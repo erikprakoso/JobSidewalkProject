@@ -50,7 +50,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
                     </TouchableOpacity>
                     <View style={{ width: "4%" }} />
                     <TouchableOpacity
-                        // onPress={() => navigate("Register")}
+                        onPress={() => navigate("Register")}
                         style={styles.registerButton}
                     >
                         <Text
