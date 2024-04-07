@@ -9,6 +9,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
 import Colors from "../constants/Colors";
 import Welcome from "../screens/WelcomeScreen";
+import Login from "../screens/LoginScreen";
 
 import { RootStackParamList } from "../types";
 
@@ -42,6 +43,7 @@ function RootNavigator() {
       }}
     >
       <Stack.Screen name="Welcome" component={Welcome} />
+      <Stack.Screen name="Login" component={Login} />
     </Stack.Navigator>
   );
 }

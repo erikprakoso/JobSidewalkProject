@@ -39,7 +39,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
                     style={styles.containerButton}
                 >
                     <TouchableOpacity
-                        // onPress={() => navigate("Login")}
+                        onPress={() => navigate("Login")}
                         style={styles.loginButton}
                     >
                         <Text
