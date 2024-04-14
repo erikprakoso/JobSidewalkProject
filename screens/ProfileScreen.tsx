@@ -1,18 +1,68 @@
-import React from "react";
-import { SafeAreaView, Text, View, StyleSheet, StatusBar, TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
+import { SafeAreaView, Text, View, StyleSheet, StatusBar, TouchableOpacity, Alert, ImageBackground } from "react-native";
 import Colors from "../constants/Colors";
 import FontSize from "../constants/FontSize";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types";
 import Font from "../constants/Font";
 import Spacing from "../constants/Spacing";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Profile">;
 
 const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     // Contoh data profil (nama lengkap dan email)
-    const fullName = "John Doe";
-    const email = "johndoe@example.com";
+    const [fullName, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [thumbnail, setThumbnail] = useState("");
+
+    useEffect(() => {
+        const fetchAccountId = async () => {
+            try {
+                const id = await AsyncStorage.getItem('account-key');
+                const response = await fetch(
+                    `http://192.168.100.39:1337/api/v1/accounts/${id}?populate=*`
+                );
+                if (response.ok) {
+                    const data = await response.json();
+                    setFullName(data.data.attributes.name);
+                    setEmail(data.data.attributes.email);
+                    setThumbnail(data.data.attributes.thumbnail.data.attributes.url);
+                } else {
+                    console.error("Failed to fetch job vacancy");
+                }
+            } catch (error) {
+                console.error("Error retrieving account key from AsyncStorage:", error);
+            }
+        };
+
+        fetchAccountId(); // Call the async function to fetch account key
+    }, []); // Execute this effect only once on component mount
+
+    const handleLogout = async () => {
+        try {
+            Alert.alert(
+                "Confirm Logout",
+                "Are you sure you want to logout?",
+                [
+                    {
+                        text: "Cancel",
+                        style: "cancel",
+                    },
+                    {
+                        text: "Logout",
+                        onPress: async () => {
+                            await AsyncStorage.removeItem("account-key"); // Remove the account key from AsyncStorage
+                            navigation.navigate("Login"); // Navigate back to the Login screen
+                        },
+                    },
+                ],
+                { cancelable: false }
+            );
+        } catch (error) {
+            console.error("Error logging out:", error);
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -22,7 +72,15 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                 <View style={styles.profileImageContainer}>
                     <View style={styles.profileImage}>
                         {/* Ganti dengan gambar profil */}
-                        <Text style={styles.profileInitials}>JD</Text>
+                        <ImageBackground
+                            source={{
+                                uri: `http://192.168.100.39:1337${thumbnail}`,
+                            }}
+                            style={styles.profileImage}
+                            resizeMode="cover"
+                        >
+                            {/* Placeholder or overlay content can be added here */}
+                        </ImageBackground>
                     </View>
                 </View>
                 <View style={styles.profileInfo}>
@@ -30,7 +88,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                     <Text style={styles.email}>{email}</Text>
                 </View>
             </View>
-            <TouchableOpacity style={styles.logoutButton}>
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                 <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
         </SafeAreaView>
@@ -66,6 +124,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.onPrimary,
         justifyContent: "center",
         alignItems: "center",
+        overflow: 'hidden',
     },
     profileInitials: {
         fontSize: FontSize.large,

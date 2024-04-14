@@ -15,6 +15,7 @@ import Font from "../constants/Font";
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 
@@ -41,6 +42,9 @@ const LoginScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
       });
 
       if (response.ok) {
+        const responseData = await response.json();
+        const accountId = responseData.data.attributes.id.toString();
+        await AsyncStorage.setItem('account-key', accountId);
         Alert.alert("Login Successful", "You have been logged in successfully.", [
           {
             text: "OK",
