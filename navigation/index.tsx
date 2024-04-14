@@ -8,11 +8,14 @@ import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
 import Colors from "../constants/Colors";
+import LoginScreen from "../screens/LoginScreen";
+import RegisterScreen from "../screens/RegisterScreen";
 import Welcome from "../screens/WelcomeScreen";
-import Login from "../screens/LoginScreen";
-import Register from "../screens/RegisterScreen";
+import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
 
 import { RootStackParamList } from "../types";
+import HomeScreen from "../screens/HomeScreen";
+import JobVacancyDetailScreen from "../screens/JobVacancyDetailScreen";
 
 const theme = {
   ...DefaultTheme,
@@ -44,8 +47,11 @@ function RootNavigator() {
       }}
     >
       <Stack.Screen name="Welcome" component={Welcome} />
-      <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="Register" component={Register} />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="JobVacancyDetail" component={JobVacancyDetailScreen} />
     </Stack.Navigator>
   );
 }
