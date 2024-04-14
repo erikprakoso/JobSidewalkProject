@@ -8,14 +8,13 @@ import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
 import Colors from "../constants/Colors";
+import { RootStackParamList } from "../types";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import Welcome from "../screens/WelcomeScreen";
 import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
-
-import { RootStackParamList } from "../types";
-import HomeScreen from "../screens/HomeScreen";
 import JobVacancyDetailScreen from "../screens/JobVacancyDetailScreen";
+import MainTabNavigator from "./MainTabNavigator";
 
 const theme = {
   ...DefaultTheme,
@@ -39,19 +38,20 @@ export default function Navigation() {
  */
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-function RootNavigator() {
+const RootNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: false,
+        headerShown: false, // Nonaktifkan header di semua screen
       }}
     >
       <Stack.Screen name="Welcome" component={Welcome} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-      <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="JobVacancyDetail" component={JobVacancyDetailScreen} />
+      <Stack.Screen name="MainTabNavigator" component={MainTabNavigator} />
     </Stack.Navigator>
   );
-}
+};
+

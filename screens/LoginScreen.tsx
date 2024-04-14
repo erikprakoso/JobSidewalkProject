@@ -44,7 +44,7 @@ const LoginScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
         Alert.alert("Login Successful", "You have been logged in successfully.", [
           {
             text: "OK",
-            onPress: () => navigate("Home"),
+            onPress: () => navigate("MainTabNavigator"),
           },
         ]);
       } else {

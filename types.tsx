@@ -19,6 +19,7 @@ export type RootStackParamList = {
   Home: undefined;
   JobVacancyDetail: { id: number };
   Profile: undefined;
+  MainTabNavigator: undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
