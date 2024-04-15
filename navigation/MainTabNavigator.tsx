@@ -3,8 +3,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import Colors from '../constants/Colors';
 
-// Ambil tipe properti yang sesuai dengan Tab Navigator
+
 type TabParamsList = {
     Home: undefined;
     Profile: undefined;
@@ -27,7 +28,7 @@ const MainTabNavigator: React.FC = () => {
 
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
-                tabBarActiveTintColor: 'blue',
+                tabBarActiveTintColor: Colors.primary,
                 tabBarInactiveTintColor: 'gray',
                 tabBarLabelStyle: {
                     fontSize: 14,
@@ -39,12 +40,25 @@ const MainTabNavigator: React.FC = () => {
                 headerShown: false,
             })}
         >
-            <Tab.Screen name="Home" component={HomeScreen} />
-            <Tab.Screen name="Profile" component={ProfileScreen} />
+            {/* Tambahkan tab screen untuk Home */}
+            <Tab.Screen
+                name="Home"
+                component={HomeScreen}
+                options={{
+                    tabBarLabel: 'Home',
+                }}
+            />
+
+            {/* Tambahkan tab screen untuk Profile */}
+            <Tab.Screen
+                name="Profile"
+                component={ProfileScreen}
+                options={{
+                    tabBarLabel: 'Profile',
+                }}
+            />
         </Tab.Navigator>
     );
 };
-
-
 
 export default MainTabNavigator;
