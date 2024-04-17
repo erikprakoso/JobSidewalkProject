@@ -1,25 +1,74 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, Text, View, StyleSheet, StatusBar, TouchableOpacity, Alert, ImageBackground } from "react-native";
+import {
+    SafeAreaView,
+    Text,
+    View,
+    StyleSheet,
+    StatusBar,
+    TouchableOpacity,
+    Alert,
+    ImageBackground,
+    useWindowDimensions,
+} from "react-native";
 import Colors from "../constants/Colors";
 import FontSize from "../constants/FontSize";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types";
 import Font from "../constants/Font";
-import Spacing from "../constants/Spacing";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Ionicons } from "@expo/vector-icons";
+import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Profile">;
 
+const FirstRoute = () => (
+    <View style={[styles.scene, { backgroundColor: "#ffffff" }]}>
+        <Text style={styles.tabText}>Personal Summary</Text>
+    </View>
+);
+
+const SecondRoute = () => (
+    <View style={[styles.scene, { backgroundColor: "#ffffff" }]}>
+        <Text style={styles.tabText}>Career History</Text>
+    </View>
+);
+
+const ThirdRoute = () => (
+    <View style={[styles.scene, { backgroundColor: "#ffffff" }]}>
+        <Text style={styles.tabText}>Education</Text>
+    </View>
+);
+
+const FourthRoute = () => (
+    <View style={[styles.scene, { backgroundColor: "#ffffff" }]}>
+        <Text style={styles.tabText}>License & Certification</Text>
+    </View>
+);
+
 const ProfileScreen: React.FC<Props> = ({ navigation }) => {
-    // Contoh data profil (nama lengkap dan email)
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [thumbnail, setThumbnail] = useState("");
+    const [index, setIndex] = useState(0);
+
+    const routes = [
+        { key: 'first', title: 'Personal Summary' },
+        { key: 'second', title: 'Career History' },
+        { key: 'third', title: 'Education' },
+        { key: 'fourth', title: 'License & Certification' },
+    ];
+
+    const renderScene = SceneMap({
+        first: FirstRoute,
+        second: SecondRoute,
+        third: ThirdRoute,
+        fourth: FourthRoute
+    });
 
     useEffect(() => {
         const fetchAccountId = async () => {
             try {
-                const id = await AsyncStorage.getItem('account-key');
+                const id = await AsyncStorage.getItem("account-key");
                 const response = await fetch(
                     `http://192.168.100.39:1337/api/v1/accounts/${id}?populate=*`
                 );
@@ -27,17 +76,22 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                     const data = await response.json();
                     setFullName(data.data.attributes.name);
                     setEmail(data.data.attributes.email);
-                    setThumbnail(data.data.attributes.thumbnail.data.attributes.url);
+                    setThumbnail(
+                        data.data.attributes.thumbnail.data.attributes.url
+                    );
                 } else {
                     console.error("Failed to fetch job vacancy");
                 }
             } catch (error) {
-                console.error("Error retrieving account key from AsyncStorage:", error);
+                console.error(
+                    "Error retrieving account key from AsyncStorage:",
+                    error
+                );
             }
         };
 
-        fetchAccountId(); // Call the async function to fetch account key
-    }, []); // Execute this effect only once on component mount
+        fetchAccountId();
+    }, []);
 
     const handleLogout = async () => {
         try {
@@ -52,8 +106,8 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                     {
                         text: "Logout",
                         onPress: async () => {
-                            await AsyncStorage.removeItem("account-key"); // Remove the account key from AsyncStorage
-                            navigation.navigate("Login"); // Navigate back to the Login screen
+                            await AsyncStorage.removeItem("account-key");
+                            navigation.navigate("Login");
                         },
                     },
                 ],
@@ -64,6 +118,8 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         }
     };
 
+    const layout = useWindowDimensions();
+
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="light-content" />
@@ -71,23 +127,46 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
             <View style={styles.blueBox}>
                 <View style={styles.profileImageContainer}>
                     <View style={styles.profileImage}>
-                        {/* Ganti dengan gambar profil */}
                         <ImageBackground
                             source={{
                                 uri: `http://192.168.100.39:1337${thumbnail}`,
                             }}
                             style={styles.profileImage}
                             resizeMode="cover"
-                        >
-                            {/* Placeholder or overlay content can be added here */}
-                        </ImageBackground>
+                        />
                     </View>
                 </View>
                 <View style={styles.profileInfo}>
                     <Text style={styles.fullName}>{fullName}</Text>
                     <Text style={styles.email}>{email}</Text>
                 </View>
+                <TouchableOpacity
+                    style={styles.settingsButton}
+                    onPress={() => {
+                        // Implement navigation to settings screen or perform settings action
+                    }}
+                >
+                    <Ionicons name="settings" size={24} color={Colors.onPrimary} />
+                </TouchableOpacity>
             </View>
+
+            <TabView
+                navigationState={{ index, routes }}
+                renderScene={renderScene}
+                onIndexChange={setIndex}
+                initialLayout={{ width: layout.width }}
+                renderTabBar={(props) => (
+                    <TabBar
+                        {...props}
+                        indicatorStyle={{ backgroundColor: Colors.primary, height: 3 }}
+                        style={{ backgroundColor: Colors.onPrimary }}
+                        labelStyle={{ color: Colors.primary, fontSize: FontSize.xxsmall }}
+                        scrollEnabled
+                    />
+                )}
+                lazy={true}
+            />
+
             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                 <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
@@ -103,70 +182,81 @@ const styles = StyleSheet.create({
     blueBox: {
         height: 200,
         backgroundColor: Colors.primary,
-        marginBottom: 20,
+        marginBottom: 0,
         padding: 20,
         justifyContent: "center",
         alignItems: "center",
     },
     profileImageContainer: {
-        width: 120,
-        height: 120,
-        borderRadius: 60, // Menggunakan setengah dari lebar/tinggi untuk membuat lingkaran
-        backgroundColor: Colors.gray,
+        width: 80,
+        height: 80,
+        borderRadius: 40,
         justifyContent: "center",
         alignItems: "center",
-        marginTop: 250,
+        marginTop: 50,
     },
     profileImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 50, // Menggunakan setengah dari lebar/tinggi untuk membuat lingkaran
+        width: 80,
+        height: 80,
+        borderRadius: 40,
         backgroundColor: Colors.onPrimary,
         justifyContent: "center",
         alignItems: "center",
-        overflow: 'hidden',
-    },
-    profileInitials: {
-        fontSize: FontSize.large,
-        fontWeight: "bold",
-        color: Colors.text,
+        overflow: "hidden",
     },
     profileInfo: {
         alignItems: "center",
     },
     fullName: {
+        marginTop: 10,
         fontSize: FontSize.medium,
-        color: Colors.primary,
+        color: Colors.onPrimary,
         fontFamily: Font["poppins-regular"],
     },
     email: {
         fontSize: FontSize.small,
-        color: Colors.primary,
+        color: Colors.onPrimary,
         fontFamily: Font["poppins-regular"],
+    },
+    settingsButton: {
+        position: "absolute",
+        top: 40,
+        right: 20,
+        padding: 10,
     },
     logoutButton: {
         width: "90%",
         borderColor: Colors.danger,
         borderWidth: 1,
-        paddingVertical: Spacing * 1.5,
-        paddingHorizontal: Spacing * 2,
-        borderRadius: Spacing,
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        borderRadius: 10,
         shadowColor: Colors.danger,
         shadowOffset: {
             width: 0,
-            height: Spacing,
+            height: 10,
         },
         shadowOpacity: 0.3,
-        shadowRadius: Spacing,
+        shadowRadius: 10,
         alignSelf: "center",
         position: "absolute",
-        bottom: Spacing * 2,
+        bottom: 20,
     },
     logoutText: {
         fontFamily: Font["poppins-bold"],
         color: Colors.danger,
         textAlign: "center",
         fontSize: FontSize.large,
+    },
+    scene: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    tabText: {
+        fontSize: FontSize.large,
+        color: Colors.primary,
+        fontFamily: Font["poppins-bold"],
     },
 });
 
