@@ -141,12 +141,12 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                     <Text style={styles.email}>{email}</Text>
                 </View>
                 <TouchableOpacity
-                    style={styles.settingsButton}
+                    style={styles.pencilButton}
                     onPress={() => {
-                        // Implement navigation to settings screen or perform settings action
+                        // Implement navigation to pencil screen or perform pencil action
                     }}
                 >
-                    <Ionicons name="settings" size={24} color={Colors.onPrimary} />
+                    <Ionicons name="pencil" size={18} color={Colors.onPrimary} />
                 </TouchableOpacity>
             </View>
 
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
         color: Colors.onPrimary,
         fontFamily: Font["poppins-regular"],
     },
-    settingsButton: {
+    pencilButton: {
         position: "absolute",
         top: 40,
         right: 20,
