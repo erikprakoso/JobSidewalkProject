@@ -6,6 +6,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types";
 import { Ionicons } from "@expo/vector-icons";
 import Font from "../constants/Font";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type JobVacancy = {
     id: number;
@@ -23,10 +24,30 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     const [searchText, setSearchText] = useState("");
     const [jobVacancies, setJobVacancies] = useState<JobVacancy[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [fullName, setFullName] = useState("");
+    const [greeting, setGreeting] = useState("");
 
     useEffect(() => {
         fetchData();
+        fetchAccountId();
     }, []);
+
+    const fetchAccountId = async () => {
+        try {
+            const id = await AsyncStorage.getItem("account-key");
+            const response = await fetch(
+                `http://192.168.100.39:1337/api/v1/accounts/${id}?populate=*`
+            );
+            if (response.ok) {
+                const data = await response.json();
+                setFullName(data.data.attributes.name);
+            } else {
+                console.error("Failed to fetch account data");
+            }
+        } catch (error) {
+            console.error("Error retrieving account key from AsyncStorage:", error);
+        }
+    };
 
     const fetchData = async () => {
         try {
@@ -40,9 +61,20 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
         } catch (error) {
             console.error("An error occurred while fetching data:", error);
         } finally {
-            setIsLoading(false); // Setelah selesai fetching, matikan isLoading
+            setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        const currentTime = new Date().getHours();
+        if (currentTime < 12) {
+            setGreeting("Good Morning");
+        } else if (currentTime >= 12 && currentTime < 18) {
+            setGreeting("Good Afternoon");
+        } else {
+            setGreeting("Good Evening");
+        }
+    }, []);
 
     const handleSearch = async () => {
         try {
@@ -55,9 +87,8 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
             }
         } catch (error) {
             console.error("An error occurred while fetching data:", error);
-
         } finally {
-            setIsLoading(false); // Setelah selesai fetching, matikan isLoading
+            setIsLoading(false);
         }
     };
 
@@ -66,7 +97,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
             <StatusBar barStyle="light-content" />
 
             <View style={styles.blueBox}>
-                <Text style={styles.welcomeText}>Good Night, User 4!</Text>
+                <Text style={styles.welcomeText}>{greeting}, {fullName}</Text>
                 <View style={styles.searchContainer}>
                     <TextInput
                         style={styles.searchInput}
@@ -112,9 +143,9 @@ const getPostedTime = (createdAt: string) => {
     const createdDate = new Date(createdAt);
     const currentDate = new Date();
     const diffTime = Math.abs(currentDate.getTime() - createdDate.getTime());
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); // Perbedaan dalam hari
-    const diffHours = Math.floor(diffTime / (1000 * 60 * 60)); // Perbedaan dalam jam
-    const diffMinutes = Math.floor(diffTime / (1000 * 60)); // Perbedaan dalam menit
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+    const diffMinutes = Math.floor(diffTime / (1000 * 60));
 
     if (diffDays > 0) {
         return `${diffDays} ${diffDays > 1 ? 'days' : 'day'} ago`;
