@@ -18,6 +18,7 @@ import Font from "../constants/Font";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
+import * as ImagePicker from "expo-image-picker";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Profile">;
 
@@ -46,10 +47,11 @@ const FourthRoute = () => (
 );
 
 const ProfileScreen: React.FC<Props> = ({ navigation }) => {
-    const [fullName, setFullName] = useState("");
-    const [email, setEmail] = useState("");
-    const [thumbnail, setThumbnail] = useState("");
-    const [index, setIndex] = useState(0);
+    const [fullName, setFullName] = useState<string | null>(null);
+    const [email, setEmail] = useState<string | null>(null);
+    const [thumbnail, setThumbnail] = useState<string | null>(null);
+    const [index, setIndex] = useState<number>(0);
+    const [thumbnailId, setThumbnailId] = useState<number>(0);
 
     const routes = [
         { key: 'first', title: 'Personal Summary' },
@@ -79,6 +81,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                     setThumbnail(
                         data.data.attributes.thumbnail.data.attributes.url
                     );
+                    setThumbnailId(data.data.attributes.thumbnail.data.id);
                 } else {
                     console.error("Failed to fetch job vacancy");
                 }
@@ -118,6 +121,65 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         }
     };
 
+    const openImagePicker = async () => {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            Alert.alert("Permission to access media library is required!");
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
+        });
+
+        if (!result.canceled) { // Note: Use `cancelled` instead of `canceled`
+            const selectedUri = result?.assets[0].uri; // Access URI from assets array
+            setThumbnail(selectedUri);
+
+            // Upload the selected image to the server
+            uploadImage(selectedUri);
+        }
+    };
+
+    const uploadImage = async (uri: string | undefined) => {
+        if (!uri) return;
+
+        try {
+            const formData = new FormData();
+            const fileName = uri.split("/").pop(); // Mendapatkan nama file dari URI
+            formData.append("files", {
+                uri,
+                name: fileName,
+            });
+
+            const response = await fetch(`http://192.168.100.39:1337/api/upload?id=${thumbnailId}`, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+
+            if (response.ok) {
+                // Handle success response (e.g., show success message)
+                Alert.alert("Image uploaded successfully!");
+            } else {
+                // Handle error response (e.g., show error message)
+                Alert.alert("Failed to upload image. Please try again.");
+            }
+
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            Alert.alert("An error occurred while uploading image. Please try again.");
+        }
+    };
+
+
     const layout = useWindowDimensions();
 
     return (
@@ -126,28 +188,27 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
             <View style={styles.blueBox}>
                 <View style={styles.profileImageContainer}>
-                    <View style={styles.profileImage}>
-                        <ImageBackground
-                            source={{
-                                uri: `http://192.168.100.39:1337${thumbnail}`,
-                            }}
-                            style={styles.profileImage}
-                            resizeMode="cover"
-                        />
+                    <View style={styles.profileImageContainer}>
+                        <TouchableOpacity onPress={openImagePicker}>
+                            <View style={styles.profileImage}>
+                                <ImageBackground
+                                    source={{
+                                        uri: thumbnail?.startsWith("file://") ? thumbnail : `http://192.168.100.39:1337${thumbnail}`,
+                                    }}
+                                    style={styles.profileImage}
+                                    resizeMode="cover"
+                                />
+                            </View>
+                            <View style={styles.pencilIconContainer}>
+                                <Ionicons name="pencil" style={styles.pencilIcon} />
+                            </View>
+                        </TouchableOpacity>
                     </View>
                 </View>
                 <View style={styles.profileInfo}>
                     <Text style={styles.fullName}>{fullName}</Text>
                     <Text style={styles.email}>{email}</Text>
                 </View>
-                <TouchableOpacity
-                    style={styles.pencilButton}
-                    onPress={() => {
-                        // Implement navigation to pencil screen or perform pencil action
-                    }}
-                >
-                    <Ionicons name="pencil" size={18} color={Colors.onPrimary} />
-                </TouchableOpacity>
             </View>
 
             <TabView
@@ -193,7 +254,7 @@ const styles = StyleSheet.create({
         borderRadius: 40,
         justifyContent: "center",
         alignItems: "center",
-        marginTop: 50,
+        marginTop: 10,
     },
     profileImage: {
         width: 80,
@@ -217,12 +278,6 @@ const styles = StyleSheet.create({
         fontSize: FontSize.small,
         color: Colors.onPrimary,
         fontFamily: Font["poppins-regular"],
-    },
-    pencilButton: {
-        position: "absolute",
-        top: 40,
-        right: 20,
-        padding: 10,
     },
     logoutButton: {
         width: "90%",
@@ -257,6 +312,21 @@ const styles = StyleSheet.create({
         fontSize: FontSize.large,
         color: Colors.primary,
         fontFamily: Font["poppins-bold"],
+    },
+    pencilIconContainer: {
+        position: "absolute",
+        top: 0,
+        right: 0,
+        width: 25, // Adjust the width and height as needed
+        height: 25, // Adjust the width and height as needed
+        borderRadius: 15, // Make the container a circle
+        backgroundColor: "rgba(0, 0, 0, 0.5)", // Transparent background with some opacity
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    pencilIcon: {
+        color: Colors.onPrimary,
+        fontSize: 15,
     },
 });
 
