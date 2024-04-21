@@ -97,6 +97,8 @@ const LoginScreen: React.FC<Props> = ({ navigation: { navigate } }) => {
             onBlur={() => setFocus(false)}
             value={email}
             onChangeText={(text) => setEmail(text)}
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
           <View style={styles.passwordInputContainer}>
             <TextInput
