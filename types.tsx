@@ -20,6 +20,7 @@ export type RootStackParamList = {
   JobVacancyDetail: { id: number };
   Profile: undefined;
   MainTabNavigator: undefined;
+  FirstRoute: { personalSummaryId: number };
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

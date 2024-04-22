@@ -19,32 +19,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import * as ImagePicker from "expo-image-picker";
+import FirstRoute from "../partials/Profile/FirstRoute";
+import SecondRoute from "../partials/Profile/SecondRoute";
+import ThirdRoute from "../partials/Profile/ThirdRoute";
+import FourthRoute from "../partials/Profile/FourthRoute";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Profile">;
-
-const FirstRoute = () => (
-    <View style={[styles.scene, { backgroundColor: "#ffffff" }]}>
-        <Text style={styles.tabText}>Personal Summary</Text>
-    </View>
-);
-
-const SecondRoute = () => (
-    <View style={[styles.scene, { backgroundColor: "#ffffff" }]}>
-        <Text style={styles.tabText}>Career History</Text>
-    </View>
-);
-
-const ThirdRoute = () => (
-    <View style={[styles.scene, { backgroundColor: "#ffffff" }]}>
-        <Text style={styles.tabText}>Education</Text>
-    </View>
-);
-
-const FourthRoute = () => (
-    <View style={[styles.scene, { backgroundColor: "#ffffff" }]}>
-        <Text style={styles.tabText}>License & Certification</Text>
-    </View>
-);
 
 const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     const [fullName, setFullName] = useState<string | null>(null);
@@ -52,6 +32,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     const [thumbnail, setThumbnail] = useState<string | null>(null);
     const [index, setIndex] = useState<number>(0);
     const [thumbnailId, setThumbnailId] = useState<number>(0);
+    const [personalSummaryId, setPersonalSummaryId] = useState<number>(0);
 
     const routes = [
         { key: 'first', title: 'Personal Summary' },
@@ -59,13 +40,6 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         { key: 'third', title: 'Education' },
         { key: 'fourth', title: 'License & Certification' },
     ];
-
-    const renderScene = SceneMap({
-        first: FirstRoute,
-        second: SecondRoute,
-        third: ThirdRoute,
-        fourth: FourthRoute
-    });
 
     useEffect(() => {
         const fetchAccountId = async () => {
@@ -82,6 +56,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                         data.data.attributes.thumbnail.data.attributes.url
                     );
                     setThumbnailId(data.data.attributes.thumbnail.data.id);
+                    setPersonalSummaryId(data.data.attributes.personal_summary.data.id);
                 } else {
                     console.error("Failed to fetch job vacancy");
                 }
@@ -213,7 +188,20 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
             <TabView
                 navigationState={{ index, routes }}
-                renderScene={renderScene}
+                renderScene={({ route }) => {
+                    switch (route.key) {
+                        case 'first':
+                            return <FirstRoute personalSummaryId={personalSummaryId} />;
+                        case 'second':
+                            return <SecondRoute />;
+                        case 'third':
+                            return <ThirdRoute />;
+                        case 'fourth':
+                            return <FourthRoute />;
+                        default:
+                            return null;
+                    }
+                }}
                 onIndexChange={setIndex}
                 initialLayout={{ width: layout.width }}
                 renderTabBar={(props) => (
@@ -302,16 +290,6 @@ const styles = StyleSheet.create({
         color: Colors.danger,
         textAlign: "center",
         fontSize: FontSize.large,
-    },
-    scene: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    tabText: {
-        fontSize: FontSize.large,
-        color: Colors.primary,
-        fontFamily: Font["poppins-bold"],
     },
     pencilIconContainer: {
         position: "absolute",
