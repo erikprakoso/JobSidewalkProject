@@ -215,10 +215,6 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                 )}
                 lazy={true}
             />
-
-            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-                <Text style={styles.logoutText}>Logout</Text>
-            </TouchableOpacity>
         </SafeAreaView>
     );
 };
@@ -266,30 +262,6 @@ const styles = StyleSheet.create({
         fontSize: FontSize.small,
         color: Colors.onPrimary,
         fontFamily: Font["poppins-regular"],
-    },
-    logoutButton: {
-        width: "90%",
-        borderColor: Colors.danger,
-        borderWidth: 1,
-        paddingVertical: 15,
-        paddingHorizontal: 20,
-        borderRadius: 10,
-        shadowColor: Colors.danger,
-        shadowOffset: {
-            width: 0,
-            height: 10,
-        },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        alignSelf: "center",
-        position: "absolute",
-        bottom: 20,
-    },
-    logoutText: {
-        fontFamily: Font["poppins-bold"],
-        color: Colors.danger,
-        textAlign: "center",
-        fontSize: FontSize.large,
     },
     pencilIconContainer: {
         position: "absolute",
