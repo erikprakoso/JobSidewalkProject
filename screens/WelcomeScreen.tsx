@@ -84,7 +84,6 @@ const styles = StyleSheet.create({
     },
     container: {
         paddingHorizontal: Spacing * 4,
-        paddingTop: Spacing * 4,
     },
     title: {
         fontSize: FontSize.xxLarge,
@@ -97,11 +96,10 @@ const styles = StyleSheet.create({
         color: Colors.text,
         fontFamily: Font["poppins-regular"],
         textAlign: "center",
-        marginTop: Spacing * 2,
     },
     containerButton: {
         paddingHorizontal: Spacing * 2,
-        paddingTop: Spacing * 6,
+        paddingTop: Spacing * 2,
         flexDirection: "row",
         justifyContent: "space-between",
     },
