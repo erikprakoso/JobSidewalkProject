@@ -57,6 +57,8 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
                     );
                     setThumbnailId(data.data.attributes.thumbnail.data.id);
                     setPersonalSummaryId(data.data.attributes.personal_summary.data.id);
+                    console.log('personalSummaryId', data.data.attributes.personal_summary.data.id);
+                    
                 } else {
                     console.error("Failed to fetch job vacancy");
                 }

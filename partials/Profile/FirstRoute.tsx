@@ -3,37 +3,33 @@ import { View, Text, StyleSheet } from "react-native";
 import Colors from "../../constants/Colors";
 import FontSize from "../../constants/FontSize";
 import Font from "../../constants/Font";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../types";
 
-type Props = NativeStackScreenProps<RootStackParamList, "Profile">;
+type Props = {
+    personalSummaryId: number;
+};
 
 const FirstRoute: React.FC<Props> = ({ personalSummaryId }) => {
     const [description, setDescription] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchAccountId = async () => {
+        const fetchPersonalSummary = async () => {
             try {
                 const response = await fetch(
                     `http://192.168.100.39:1337/api/v1/personal-summaries/${personalSummaryId}`
                 );
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(data);
-                    setDescription(data.data.attributes.description); // Set description state with fetched data
+                    setDescription(data.data.attributes.description);
                 } else {
                     console.error("Failed to fetch personal summary");
                 }
             } catch (error) {
-                console.error(
-                    "Error retrieving personal summary data:",
-                    error
-                );
+                console.error("Error retrieving personal summary data:", error);
             }
         };
 
-        fetchAccountId();
-    }, []); // Make sure to add dependencies if needed
+        fetchPersonalSummary();
+    }, [personalSummaryId]); // Re-fetch if personalSummaryId changes
 
     return (
         <View style={styles.container}>
@@ -43,7 +39,7 @@ const FirstRoute: React.FC<Props> = ({ personalSummaryId }) => {
             </View>
             <View style={styles.cardContainer}>
                 <Text style={styles.cardText} numberOfLines={5} ellipsizeMode="tail">
-                    {description || "Loading..."} {/* Display description or loading text */}
+                    {description || "Loading..."}
                 </Text>
             </View>
         </View>
@@ -58,9 +54,9 @@ const styles = StyleSheet.create({
     },
     header: {
         flexDirection: "row",
-        justifyContent: "space-between", // Menyisipkan ruang antara elemen di header
+        justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: 10, // Jarak bawah dari header
+        marginBottom: 10,
     },
     cardContainer: {
         backgroundColor: Colors.onPrimary,
@@ -73,7 +69,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.2,
         shadowRadius: 4,
-        elevation: 3, // Elevation untuk bayangan di Android
+        elevation: 3,
     },
     cardText: {
         fontSize: FontSize.small,
